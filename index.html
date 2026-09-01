@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build Your Class - 5th Grade Typing Game</title>
+
+  <style>
+    :root{
+      --bg1:#fffbec;
+      --bg2:#e5f8ff;
+      --bg3:#f5f0ff;
+      --card:#ffffff;
+      --text:#0f172a;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(1200px 800px at 10% -10%, var(--bg2), transparent 60%),
+        radial-gradient(1000px 1000px at 110% 0%, var(--bg3), transparent 60%),
+        radial-gradient(900px 700px at 50% 120%, var(--bg1), transparent 60%),
+        linear-gradient(180deg,#e9f7ff,#fff);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .app{
+      width:100%;
+      max-width:1000px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:20px;
+      padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.06);
+    }
+
+    h1{
+      margin:0 0 12px;
+      font-size:clamp(32px,5vw,48px);
+      text-align:center;
+    }
+
+    h2{
+      margin-top:0;
+      text-align:center;
+    }
+
+    p{
+      opacity:.9;
+      text-align:center;
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .two{
+      grid-template-columns:1fr 1fr;
+    }
+
+    .btn{
+      border:1px solid rgba(0,0,0,.1);
+      background:#f1f5f9;
+      color:var(--text);
+      padding:12px 16px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:16px;
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,#34d399,#60a5fa);
+      color:white;
+      border:none;
+    }
+
+    .btn.good{
+      background:linear-gradient(135deg,#22c55e,#8bff9a);
+      color:#064e3b;
+      border:none;
+    }
+
+    .teacher-list{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(160px,1fr));
+      gap:12px;
+    }
+
+    .panel{
+      background:#f8fafc;
+      border:1px dashed rgba(0,0,0,.12);
+      padding:16px;
+      border-radius:14px;
+    }
+
+    .target{
+      font-size:clamp(34px,7vw,60px);
+      font-weight:900;
+      text-align:center;
+      background:linear-gradient(180deg,#0f172a,#3b82f6 70%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .input-row{
+      display:flex;
+      justify-content:center;
+    }
+
+    input[type="text"]{
+      width:min(580px,90%);
+      font-size:22px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.14);
+    }
+
+    input.wrong{
+      animation:wrongShake .22s linear;
+      border-color:#dc2626;
+      background:#fff1f2;
+    }
+
+    @keyframes wrongShake{
+      0%,100%{transform:translateX(0);}
+      25%{transform:translateX(-6px);}
+      75%{transform:translateX(6px);}
+    }
+
+    .hud{
+      display:flex;
+      gap:12px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      background:#eef2ff;
+      font-weight:700;
+    }
+
+    .stickgrid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(64px,1fr));
+      gap:8px;
+    }
+
+    .stick{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:12px;
+      padding:6px;
+    }
+
+    .stick svg{
+      width:34px;
+      height:34px;
+    }
+
+    .tag{
+      margin-top:4px;
+      font-size:11px;
+      text-align:center;
+      width:100%;
+      overflow-wrap:anywhere;
+    }
+
+    .hidden{
+      display:none;
+    }
+
+    .sassy-result{
+      font-size:clamp(42px,7vw,76px);
+      line-height:1.05;
+      font-weight:900;
+      text-align:center;
+      margin:8px 0 18px;
+      letter-spacing:-1px;
+      opacity:0;
+      transform:translateY(10px);
+    }
+
+    .sassy-result.show{
+      animation:sassyFade 1s ease-out forwards;
+    }
+
+    .sassy-result.low{
+      color:#dc2626;
+    }
+
+    .sassy-result.medium{
+      color:#d97706;
+    }
+
+    .sassy-result.high{
+      color:#2563eb;
+    }
+
+    .sassy-result.elite{
+      background:linear-gradient(90deg,#7c3aed,#2563eb,#059669);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    @keyframes sassyFade{
+      from{
+        opacity:0;
+        transform:translateY(10px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      .sassy-result.show{
+        animation:none;
+        opacity:1;
+        transform:none;
+      }
+    }
+
+    @media (max-width:760px){
+      .teacher-list{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .two{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <div id="screen-setup" class="card grid">
+      <h1>Build Your Class</h1>
+      <p>
+        Type the name shown exactly as it appears and press <b>Enter</b>.
+        Capital letters count! See how many classmates you can type in 30 seconds.
+      </p>
+
+      <div class="panel grid">
+        <label for="playerName"><b>Your name</b></label>
+        <input id="playerName" type="text" placeholder="Type your first name" />
+      </div>
+
+      <h3>Select your teacher</h3>
+      <div id="teacherButtons" class="teacher-list"></div>
+    </div>
+
+    <div id="screen-game" class="card hidden grid">
+
+      <div class="hud">
+        <div class="chip">⏱️ Time: <span id="timeLeft">30.0</span>s</div>
+        <div class="chip">✅ Score: <span id="score">0</span></div>
+        <div class="chip">Class: <span id="hudClass"></span></div>
+        <div class="chip">Player: <span id="hudPlayer"></span></div>
+      </div>
+
+      <div class="chip" style="justify-self:start">
+        Collected:
+        <span id="collected">0</span>/<span id="classTotal">0</span>
+      </div>
+
+      <div id="stickGrid" class="stickgrid"></div>
+
+      <div id="target" class="target">—</div>
+
+      <div class="input-row">
+        <input
+          id="answer"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <div class="grid two">
+        <button id="startBtn" class="btn primary">Start</button>
+        <button id="endBtn" class="btn">End Round</button>
+      </div>
+
+    </div>
+
+    <div id="screen-results" class="card hidden grid">
+      <h2>Round Over!</h2>
+
+      <div id="sassyResult" class="sassy-result"></div>
+
+      <p>
+        Great work,
+        <span id="resPlayer"></span>
+        in <b><span id="resClass"></span></b>!
+      </p>
+
+      <h3>Your Score: <span id="finalScore">0</span></h3>
+
+      <div id="resultsStickGrid" class="stickgrid"></div>
+
+      <div class="grid two">
+        <button id="playAgain" class="btn good">Play Again</button>
+        <button id="switchClass" class="btn">Switch Class</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const TEACHERS = [
+      "Mrs. Burke",
+      "Mrs. Hamilton",
+      "Mrs. Mangan",
+      "Mrs. Stout"
+    ];
+
+    const CLASSLISTS = {
+      "Mrs. Burke": [
+        "Cole","Ollie","Macy","Liam","Chloe","Claire","Landon","Dante",
+        "Declan","Christian","Violet","Nazik","Sezim","Benjamin","Aiden",
+        "Zoe","Roman","Sebastian","Enzo","Aeris","Lydia","Kayla","Minha","Jake"
+      ],
+
+      "Mrs. Hamilton": [
+        "Rachael","Kevin","Finn","Isabella","Miguel","Matthew","Cali","Benjamin",
+        "Anna","Brooklyn","Absalom","Penelope","Nolan","Hank","Cassius","Ryan",
+        "Ella","Allison","McKayla","Tanner","Kendyl","Dawson","Alexander",
+        "Payton","Layla"
+      ],
+
+      "Mrs. Mangan": [
+        "Yahya","Karam","Kamden","Luca","Sarah","Trent","Henry","Leah","Lumen",
+        "Lena","Brooklyn","Hannah","Carter","Jacob","Addilyn","Benjamin","Charles",
+        "Rania","Aslynn","Noah","Ariana","Leif","Aria","Ava","Jace"
+      ],
+
+      "Mrs. Stout": [
+        "Tucker","Adella","Landon","Kinsley","Gianna","Juliana","Vivianna",
+        "Auriana","Harper","Benjamin","Nathan","Sawyer","Sariyah","Tanner",
+        "Olivia","Teagan","Marshall","Jacob","Grayson","Mila","Bryce","Ethan",
+        "Zachary","Brody"
+      ]
+    };
+
+    const SASSY_SAYINGS = {
+      low: [
+        "Were your fingers on vacation?",
+        "That keyboard barely knew you were there.",
+        "Bold strategy.",
+        "Did you know you're allowed to use BOTH hands?",
+        "The keyboard would like to speak to your manager.",
+        "Five names. Thirty seconds. Let's not talk about it.",
+        "Good news: there's nowhere to go but up."
+      ],
+
+      medium: [
+        "Okayyy, now we're typing.",
+        "You're warming up.",
+        "Respectable. Not legendary.",
+        "Not bad. Not amazing. We'll allow it.",
+        "Your fingers have officially entered the chat.",
+        "Okay, keyboard warrior. I see you.",
+        "You survived. The keyboard survived. Everybody wins."
+      ],
+
+      high: [
+        "Look at you go!",
+        "Now THAT was typing.",
+        "Your keyboard is impressed.",
+        "Someone's been practicing.",
+        "Your fingers understood the assignment.",
+        "Okay, speedster. Calm down.",
+        "The keyboard is starting to fear you."
+      ],
+
+      elite: [
+        "Absolute typing machine.",
+        "Save some names for everybody else.",
+        "Keyboard = conquered.",
+        "Do your fingers have turbo mode?",
+        "Well, somebody came to SHOW OFF.",
+        "Your keyboard needs a snack break.",
+        "We get it. You can type. 🙄"
+      ]
+    };
+
+    let currentClass = "";
+    let player = "";
+    let roundActive = false;
+    let score = 0;
+    let timeLeft = 30;
+    let ticker = null;
+    let pool = [];
+    let idx = 0;
+    let collectedNames = new Set();
+
+    const screenSetup = document.getElementById("screen-setup");
+    const screenGame = document.getElementById("screen-game");
+    const screenResults = document.getElementById("screen-results");
+
+    const teacherButtons = document.getElementById("teacherButtons");
+    const playerNameInput = document.getElementById("playerName");
+
+    const hudClass = document.getElementById("hudClass");
+    const hudPlayer = document.getElementById("hudPlayer");
+    const timeLeftEl = document.getElementById("timeLeft");
+    const scoreEl = document.getElementById("score");
+
+    const targetEl = document.getElementById("target");
+    const answerEl = document.getElementById("answer");
+
+    const startBtn = document.getElementById("startBtn");
+    const endBtn = document.getElementById("endBtn");
+
+    const resPlayer = document.getElementById("resPlayer");
+    const resClass = document.getElementById("resClass");
+    const finalScore = document.getElementById("finalScore");
+    const resultsStickGrid = document.getElementById("resultsStickGrid");
+    const stickGrid = document.getElementById("stickGrid");
+    const sassyResult = document.getElementById("sassyResult");
+
+    const collectedEl = document.getElementById("collected");
+    const classTotalEl = document.getElementById("classTotal");
+
+    const playAgain = document.getElementById("playAgain");
+    const switchClass = document.getElementById("switchClass");
+
+    TEACHERS.forEach(teacher => {
+      const button = document.createElement("button");
+      button.className = "btn";
+      button.textContent = teacher;
+      button.addEventListener("click", () => selectTeacher(teacher));
+      teacherButtons.appendChild(button);
+    });
+
+    function selectTeacher(teacher){
+      player = (playerNameInput.value || "Player").trim();
+      currentClass = teacher;
+
+      hudClass.textContent = teacher;
+      hudPlayer.textContent = player;
+
+      setupRound();
+
+      screenSetup.classList.add("hidden");
+      screenResults.classList.add("hidden");
+      screenGame.classList.remove("hidden");
+    }
+
+    function setupRound(){
+      score = 0;
+      scoreEl.textContent = "0";
+
+      timeLeft = 30;
+      timeLeftEl.textContent = timeLeft.toFixed(1);
+
+      roundActive = false;
+      clearInterval(ticker);
+
+      pool = shuffle([...CLASSLISTS[currentClass]]);
+      idx = 0;
+      collectedNames = new Set();
+
+      stickGrid.innerHTML = "";
+      resultsStickGrid.innerHTML = "";
+
+      classTotalEl.textContent = String(CLASSLISTS[currentClass].length);
+      collectedEl.textContent = "0";
+
+      sassyResult.textContent = "";
+      sassyResult.className = "sassy-result";
+
+      setTarget("—");
+    }
+
+    function setTarget(name){
+      targetEl.textContent = name;
+      answerEl.value = "";
+    }
+
+    function startRound(){
+      if(roundActive) return;
+
+      setupRound();
+      roundActive = true;
+      setTarget(pool[idx]);
+      answerEl.focus();
+
+      let last = performance.now();
+
+      ticker = setInterval(() => {
+        const now = performance.now();
+        const dt = (now - last) / 1000;
+        last = now;
+
+        timeLeft = Math.max(0, timeLeft - dt);
+        timeLeftEl.textContent = timeLeft.toFixed(1);
+
+        if(timeLeft <= 0){
+          endRound();
+        }
+      }, 100);
+    }
+
+    function endRound(){
+      if(!roundActive && screenGame.classList.contains("hidden")){
+        return;
+      }
+
+      roundActive = false;
+      clearInterval(ticker);
+
+      finalScore.textContent = String(score);
+      resPlayer.textContent = player;
+      resClass.textContent = currentClass;
+      resultsStickGrid.innerHTML = stickGrid.innerHTML;
+
+      const sassy = getSassyResult(score);
+      sassyResult.className = "sassy-result";
+      sassyResult.textContent = sassy.saying;
+
+      void sassyResult.offsetWidth;
+      sassyResult.classList.add(sassy.band, "show");
+
+      screenGame.classList.add("hidden");
+      screenResults.classList.remove("hidden");
+    }
+
+    function nextName(){
+      idx++;
+
+      if(idx >= pool.length){
+        pool = shuffle([...CLASSLISTS[currentClass]]);
+        idx = 0;
+      }
+
+      setTarget(pool[idx]);
+    }
+
+    answerEl.addEventListener("keydown", event => {
+      if(event.key === "Enter"){
+        checkAnswer();
+      }
+    });
+
+    function checkAnswer(){
+      if(!roundActive) return;
+
+      const expected = targetEl.textContent;
+
+      // CASE-SENSITIVE:
+      // "Tucker" is correct.
+      // "tucker" is incorrect.
+      if(answerEl.value.trim() === expected){
+        score++;
+        scoreEl.textContent = String(score);
+
+        if(!collectedNames.has(expected)){
+          collectedNames.add(expected);
+          addStickFigure(expected);
+          collectedEl.textContent = String(collectedNames.size);
+        }
+
+        nextName();
+      }else{
+        answerEl.classList.remove("wrong");
+        void answerEl.offsetWidth;
+        answerEl.classList.add("wrong");
+      }
+    }
+
+    function getSassyResult(currentScore){
+      let band = "elite";
+
+      if(currentScore <= 5){
+        band = "low";
+      }else if(currentScore <= 10){
+        band = "medium";
+      }else if(currentScore <= 15){
+        band = "high";
+      }
+
+      const bucket = SASSY_SAYINGS[band];
+      const saying = bucket[Math.floor(Math.random() * bucket.length)];
+
+      return { band, saying };
+    }
+
+    function shuffle(array){
+      for(let i = array.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+
+      return array;
+    }
+
+    function addStickFigure(name){
+      const div = document.createElement("div");
+      div.className = "stick";
+
+      div.innerHTML = `
+        ${stickSVG()}
+        <div class="tag">${name}</div>
+      `;
+
+      stickGrid.appendChild(div);
+    }
+
+    function stickSVG(){
+      return `
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <circle
+            cx="16"
+            cy="8"
+            r="5"
+            fill="#fde68a"
+            stroke="#1f2937"
+            stroke-width="1.5"
+          />
+
+          <line
+            x1="16"
+            y1="13"
+            x2="16"
+            y2="22"
+            stroke="#1f2937"
+            stroke-width="2"
+          />
+
+          <line
+            x1="16"
+            y1="15"
+            x2="9"
+            y2="18"
+            stroke="#1f2937"
+            stroke-width="2"
+          />
+
+          <line
+            x1="16"
+            y1="15"
+            x2="23"
+            y2="18"
+            stroke="#1f2937"
+            stroke-width="2"
+          />
+
+          <line
+            x1="16"
+            y1="22"
+            x2="10"
+            y2="28"
+            stroke="#1f2937"
+            stroke-width="2"
+          />
+
+          <line
+            x1="16"
+            y1="22"
+            x2="22"
+            y2="28"
+            stroke="#1f2937"
+            stroke-width="2"
+          />
+        </svg>
+      `;
+    }
+
+    startBtn.addEventListener("click", startRound);
+
+    endBtn.addEventListener("click", () => {
+      if(roundActive){
+        endRound();
+      }
+    });
+
+    playAgain.addEventListener("click", () => {
+      screenResults.classList.add("hidden");
+      screenGame.classList.remove("hidden");
+      setupRound();
+    });
+
+    switchClass.addEventListener("click", () => {
+      clearInterval(ticker);
+      roundActive = false;
+
+      screenResults.classList.add("hidden");
+      screenGame.classList.add("hidden");
+      screenSetup.classList.remove("hidden");
+    });
+  </script>
+</body>
+</html>
